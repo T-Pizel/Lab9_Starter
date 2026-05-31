@@ -51,6 +51,7 @@
 
 <body>
   <main>
+    <p><strong>Username: Alex Twano</strong></p>
     <form>
       <fieldset>
         <legend>Error Calculator</legend>
@@ -89,19 +90,217 @@
 
   <script>
     let form = document.querySelector('form');
+
+    class ValidationError extends Error{
+      constructor(message, field){
+        super(message);
+        this.name = 'ValidationError';
+        this.field = field;
+      }
+    }
+
+    class DivisionByZeroError extends Error{
+      constructor(message, divisor){
+        super(message);
+        this.name = 'DivisionByZeroError';
+        this.divisor = divisor;
+      }
+    }
+
     form.addEventListener('submit', e => {
       e.preventDefault();
       let output = document.querySelector('output');
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+
+    // step 3, 4, 5
+      try{
+        if(firstNum === '' || secondNum === ''){
+          throw new ValidationError('Both numbers require inputs', 'empty-input');
+        }
+
+        if(isNaN(firstNum) || isNaN(secondNum)){
+          throw new ValidationError('Please enter valid numbers', 'invalid-number');
+        }
+
+        if(operator === '/' && parseFloat(secondNum) === 0){
+          throw new DivisionByZeroError('Cannot divide by zero', secondNum);
+        }
+
+        let result = eval(`${firstNum} ${operator} ${secondNum}`);
+        output.innerHTML = result;
+      } catch (error){
+        console.error(`Calculation error: ${error.message}`);
+        output.innerHTML = `Error: ${error.message}`;
+
+      if(error instanceof DivisionByZeroError){
+        console.error(`Division by zero error: ${error.divisor}`);
+      }
+
+      } finally {
+        console.log(`Calculation attempted with ${firstNum} ${operator} ${secondNum}`);
+    }
+  });
+
+   window.onerror = function(message, source, lineno, colno, error) {
+        console.group('Global Error Handler');
+        console.error('Global Error Caught:');
+        console.error('Message:', message);
+        console.error('Source:', source);
+        console.error('Line:', lineno);
+        console.error('Column:', colno);
+        console.error('Error object:', error);
+        console.groupEnd();
+        
+        let output = document.querySelector('output');
+        if (output) {
+            output.innerHTML = `Global error: ${message.substring(0, 50)}...`;
+        }
+        return true;
+    };
+
+  let errorButtons = Array.from(document.querySelectorAll('#error-btns > button'));
+  const sampleUsers= [
+        { id: 1, name: 'Alex', email: 'alex@example.com', role: 'admin' },
+        { id: 2, name: 'Jen', email: 'jen@example.com', role: 'user' },
+        { id: 3, name: 'Yes', email: 'yes@example.com', role: 'user' }
+    ];
+
+    const sampleDOMElement = document.querySelector('main');
+
+    errorButtons[0].addEventListener('click', () => {
+      console.log('Console Log Demo');
+      console.log('Simple log message');
+      console.log('Sample Users:', sampleUsers);
+      console.log('Timestamp:', new Date().toLocaleString());
     });
 
-    let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
+    errorButtons[1].addEventListener('click', () => {
+      console.error('Console Error Demo');
+      console.error('This is an error message');
+      console.error('Error:', new Error('Demo error for tests'));
+    });
 
-    // Start your code here
-    // You may move this JS to another file if you wish
+    let clickCount = 0;
+    errorButtons[2].addEventListener('click', () => {
+      clickCount++;
+      console.count('Console Count Demo');
+      console.count('Button Click Counter');
+    });
+
+    errorButtons[3].addEventListener('click', () => {
+      console.warn('Console Warning Demo');
+      console.warn('Warning message here');
+    });
+
+    errorButtons[4].addEventListener('click', () => {
+        const numberVal = Math.random() > 0.5;
+        console.assert(numberVal, 'Assertion failed: testValue should be true, but was', numberVal);
+        console.log(`Assert test value was: ${numberVal}`);
+    });
+
+    errorButtons[5].addEventListener('click', () => {
+        console.clear();
+        console.log('Console cleared');
+    });
+
+    errorButtons[6].addEventListener('click', () => {
+        console.dir(sampleUsers);
+        console.dir(document.querySelector('form'));
+        console.dir({ method: 'console.dir', shows: 'object properties interactively'});
+    });
+
+    errorButtons[7].addEventListener('click', () => {
+        console.dirxml(document.querySelector('main'));
+        console.dirxml(document.querySelector('form'));
+        console.log('console.dirxml representation');
+    });
+
+    let active = false;
+    errorButtons[8].addEventListener('click', () => {
+        console.group('Group Start');
+        console.log('This is in the group');
+        active = true;
+    });
+
+    errorButtons[9].addEventListener('click', () => {
+        if (active) {
+            console.groupEnd();
+            console.log('Group ended');
+            active = false;
+        } else {
+            console.warn('No active group to end');
+        }
+    });
+
+    errorButtons[10].addEventListener('click', () => {
+        console.table(sampleUsers);
+        console.table(sampleUsers, ['name', 'email']);
+        console.table({ property1: 'value1', property2: 'value2', property3: 'value3' });
+    });
+
+    let timerStarted = false;
+    errorButtons[11].addEventListener('click', () => {
+        console.time('Timer');
+        timerStarted = true;
+        console.log('Timer started!');
+    });
+  
+    errorButtons[12].addEventListener('click', () => {
+        if (timerStarted) {
+            console.timeEnd('Timer');
+            timerStarted = false;
+        } else {
+            console.warn('No active timer');
+        }
+    });
+
+    errorButtons[13].addEventListener('click', () => {
+        function level1() {
+            level2();
+        }
+        function level2() {
+            level3();
+        }
+        function level3() {
+            console.trace('Console stack trace');
+            console.log('Check to see if console has hierarchy levels');
+        }
+        level1();
+    });
+
+    errorButtons[14].addEventListener('click', () => {
+        console.log('Triggering global error');
+        nonExistentFunction();
+    });
+
+    (function() {
+      var trackJsScript = document.createElement('script');
+      trackJsScript.src = 'https://cdn.trackjs.com/agent/v3/latest/t.js';
+      trackJsScript.async = true;
+      
+      trackJsScript.onload = function() {
+          if (window.TrackJS) {
+              TrackJS.install({
+                  token: "5bc7359dd7a84349a5edf8781de863ba",
+                  application: "CSE110-Lab9",
+                  version: "1.0.0"
+              });
+              console.log('✅ TrackJS installed successfully with token');
+          }
+      };
+      
+      document.head.appendChild(trackJsScript);
+  })();
+
+    console.groupCollapsed('Lab 9');
+    console.log('All 15 buttons are attached');
+    console.log('Console methods are ready to test');
+    console.log('Custom error classes: ValidationError, DivisionByZeroError');
+    console.groupEnd();
+    
+    console.log('Lab 9 ready');
   </script>
 </body>
 
