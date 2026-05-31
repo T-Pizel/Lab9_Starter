@@ -276,22 +276,21 @@
     });
 
     (function() {
-      var trackJsScript = document.createElement('script');
-      trackJsScript.src = 'https://cdn.trackjs.com/agent/v3/latest/t.js';
-      trackJsScript.async = true;
-      
-      trackJsScript.onload = function() {
+      var script = document.createElement('script');
+      script.src = 'https://cdn.trackjs.com/agent/v3/latest/t.js';
+      script.onload = function() {
           if (window.TrackJS) {
-              TrackJS.install({
+              TrackJS.install({ 
                   token: "5bc7359dd7a84349a5edf8781de863ba",
-                  application: "CSE110-Lab9",
-                  version: "1.0.0"
+                  application: "cse110-lab9"
               });
-              console.log('✅ TrackJS installed successfully with token');
+              console.log('TrackJS installed');
+              setTimeout(function() {
+                  TrackJS.track('Lab 9 ready');
+              }, 1000);
           }
       };
-      
-      document.head.appendChild(trackJsScript);
+      document.head.appendChild(script);
   })();
 
     console.groupCollapsed('Lab 9');
